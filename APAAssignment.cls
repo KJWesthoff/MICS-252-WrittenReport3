@@ -230,6 +230,10 @@
 	citecolor=black, % Color of reference citations
 }
 
+
+\usepackage{listings}
+\lstset{breaklines=true} 
+
 %----------------------------------------------------------------------------------------
 %	CUSTOM COMMANDS
 %----------------------------------------------------------------------------------------
