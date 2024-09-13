@@ -92,14 +92,14 @@ WAF's and IDS's Data providers for the big SIEM picture
 \subsection{'Things' going to the cloud}
 Cloud web applications are often distributed into "microservice" architectures where data is retrieved from APIs serving multiple applications rather than managed and retrieved directly from e.g. a dedicated database\footnote{I am myself 'guilty' of developing an application with more microservices than users at one point..}. 
 
-The distributed-ness poses a new set of challenges for web security. The distributed architecture allows for a lot of different technologies to work together, often developed using "someone else's code" from open source libraries. Free Open Source Software (FOSS) is wonderful when you are a developer: you can usually find that someone has already solved the problem you are working on. But, there may be un-discovered vulnerabilities in the code, the risk needs to be mitigated somehow:
+The distributed-ness poses a new set of challenges for web security. The distributed architecture allows for a lot of different technologies to work together, often developed using "someone else's code" from open source libraries. Free Open Source Software (FOSS) is wonderful when you are a developer: you can usually find that someone has already solved the problem you are working on. But, there may be un-discovered vulnerabilities in the code, the risk needs to be mitigated somehow by:
 
 \begin{itemize}
-	\item Careful inventory keeping of the code used. 
-	\item Deploy systems for detecting and preventing attacks.
+	\item Keeping inventory of the code and versions used (SBOM). 
+	\item Deploy systems for detecting and preventing attacks (WAF and IDS).
 \end{itemize}
 
-With modern DevOps deployment where API's and services can be developed and deployed quickly. Security Operations (SecOps) needed to be adapted and security was shoehorned into the acronym and now it is referred to as DevSecOps \footnote{Shannon Lietz of Intuit is often credited with coining the term\cite{DevSecOps}}. 
+With modern DevOps deployment where API's and services can be developed and deployed quickly. Security Operations (SecOps) needed to be adapted and security was shoehorned into the DevOps acronym, it is now referred to as DevSecOps \footnote{Shannon Lietz of Intuit is often credited with coining the term\cite{DevSecOps}}. The intention being that security is not to be regarded as an afterthought but part of the development cycles.  
 
 With distributed applications there is a larger attack surface, there are more http endpoints that can be hit and the OWASP top 10 applies to all of them. The A01:2021-Broken Access control \cite{OWASPtop10} has probably moved to 1st. place in 2021 as Access and Identity control needs to be managed for all http endpoints in the distributed applications.       
 
@@ -109,20 +109,28 @@ WAF's protect web applications and covers many of the items in the OWASP top 10 
 \subsection{WAF vs. "Ordinary" Firewall}
 Firewalls in general works by allowing or blocking traffic on specific transport layer ports and ranges of IP addresses. Sometimes firewalls also work as 'stateful' where in and out going package ip's and ports are compared and grouped into sessions (i.e related traffic between the server and a client) and evaluated based on the relations between packets. More fancy firewalls also 'open' the packets and inspects parts of the packet payload, this requires more computing resources. 
 
-I guess a WAF falls into the 'fancy firewall' category: HTTP/S traffic happens at the application layer of the OSI model and hence relates to the TCP/UDP packet payload. However, a difference to an ordinary firewall is that WAF's are specialized to work on http requests, since the traffic needs to be decrypted and parsed by the web server anyway, some the resource overhead from the WAF can be mitigated by doing some of the web servers work on the WAF while checking the traffic.    
+I guess a WAF falls into the 'fancy firewall' category: HTTP/S traffic happens at the application layer of the OSI model and hence relates to the TCP/UDP packet payload. However, a difference to ordinary firewalls is that WAF's are specialized to work on http requests, since the traffic needs to be decrypted and parsed by the web server anyway, some the resource overhead from the WAF can be mitigated by doing some of the web servers work on the WAF while checking the traffic.    
 
 \subsection{WAF in the cloud}
-Much like with ordinary firewalls where one instance protects a whole subnet, WAF's can be deployed as a reverse proxy in front of a distributed web application, putting a WAF in front of the traffic can help mitigate some of the risk associated with FOSS and the complexity associated with distributed web apps. However, as the applications become complex so does the WAF deployment. 
+Much like with ordinary firewalls where one instance protects a whole subnet, WAF's can be deployed with a reverse proxy in front of a distributed web application, putting a WAF in front of the traffic can help mitigate some of the risk associated with FOSS and the complexity associated with distributed web apps. However, as the applications become complex so does the WAF deployment. 
 
 
 \subsection{WAF examples}
-As WAF's are based on analyzing the packet payloads and http query strings, 'it runs some code' checking if attacks are occurring e.g. by looking for 'special' characters for injection attacks, if passphrase spraying is being attempted etc. For that, it needs to keep track of multiple packets to track sessions and TCP streams, many vendors advertize leveraging machine learning for their WAF's\cite{OpenappsecWaf}.
+As WAF's are based on analyzing the packet payloads and http query strings; 'it runs some code', checking if attacks are occurring e.g. by looking for:
 
-\subsubsection{Types of WAF's:} WAF's are deployed in different settings depending on how the web applications they protect are deployed, in all cases WAF's need adequate processing power and speed.
+\begin{itemize}
+	\item 'special' characters for injection attacks
+ 	\item if passphrase spraying is being attempted
+    \item etc. from the OWASP top 10
+\end{itemize} 
+
+For that, it needs to keep track of multiple packets to track sessions and TCP streams, many vendors advertize leveraging machine learning for this in their WAF's\cite{OpenappsecWaf}.
+
+\subsubsection{Types of WAF's:} WAF's are deployed in different settings depending on how the web applications they protect are deployed, in all cases WAF's need adequate processing power and network bandwidth.
 \begin{itemize}
 	\item{\textbf{Host Based}: On the same physical hardware and OS as the web application}
 	\item{\textbf{Network Based}: On a separate 'box' on the network, for example with a reverse proxy}
-	\item{\textbf{Cloud Based}: As part of the cloud providers monitoring and logging systems, usually provided as a paid-for service\footnote{['\textit{Your Acronym Here}']aaS} by the cloud provider} 
+	\item{\textbf{Cloud Based}: As part of the cloud provider's monitoring and logging systems, usually provided as a paid-for service\footnote{['\textit{Your Acronym Here}']aaS} by the cloud provider} 
 \end{itemize}
 
 
@@ -156,17 +164,17 @@ Most modern web applications are cloud deployed, A list of ten popular WAF's is 
 
 
 \section{Intrusion Detection Systems}
-Intrusion detection systems (IDS) monitor network traffic and reports/alerts if it recognizes suspicious activity, sometimes IDS also actively blocks traffic\footnote{Then referred to as an Intrusion Prevention system (IPS)}. IDS systems often deliver data to a SIEM for further analysis. IDS's can be deployed both on individual hosts or at strategic places in networks, for example on a switch's promiscuous/mirror port analyzing all network traffic going through the switch. 
+Intrusion detection systems (IDS) monitor network traffic and reports/alerts if it recognizes suspicious activity, sometimes IDS also actively blocks traffic, then referred to as an Intrusion Prevention System (IPS). IDS systems often deliver data to a SIEM for further analysis. IDS's can be deployed both on individual hosts or at strategic places in networks, for example on a switch's promiscuous/mirror port analyzing all network traffic going through the switch. 
 
 IDS's usually work by applying rules to simple packet analysis in individual transport layer packets, checking for source/destination IP's, ports and which protocols are transmitted (much like a firewall). Some IDS also keep track of series of packets and their relations in sessions (stateful protocol analysis). Furthermore, some IDS's also look at anomalies in traffic, many vendors advertise deploying machine learning here. IDS can detect more advanced attacks, one example is the 'EternalBlue' attack on Microsoft's SMB protocol, the attack was detectable by looking at a specific pattern of TCP traffic on port 446, and quickly distributing IDS rules helped mitigate the attack (See Snort Rule example in Appendix \ref{app:SnortEternalBlue}). 
 
-IDS applies predefined rules often based on known patterns for malicious traffic signatures to trigger alerts. IDS rules need to be maintained and updated to reflect the threats on the internet.    
+IDS applies predefined rules often based on known patterns for malicious traffic (signatures) to trigger alerts. IDS rules need to be maintained and updated to reflect the threats on the internet.    
 
 \subsection{IDS in the cloud}
 Network traffic in cloud is virtualized and you cannot just plug an instance into a mirror port on a switch to monitor the network, you are somewhat reliant on the cloud provider to deliver data for monitoring. IDS could be deployed on every cloud instance but that would create a large workload, both of extra compute resource requirements for each instance, and a high workload for maintaining and deploying signatures to many instances.       
 
 \subsubsection{Case study: Snort on Oracle Cloud}
-For the Cyber210 networking class we wanted to build an "Attack and Defend" lab with a monitored network containing vulnerable hosts, and detect attackd on these using Snort. Instead of actually using hardware we decided to build a virtual lab using Oracle Cloud \footnote{The intention was to deploy deliberately
+For the Cyber210 networking class we wanted to build an "Attack and Defend" lab with a monitored network containing vulnerable hosts, and detect attacks on these using Snort. Instead of actually using hardware we decided to build a virtual lab using Oracle Cloud \footnote{The intention was to deploy deliberately
 vulnerable infrastructure to test, not all cloud providers make this easy. We found that Oracle Cloud has a 30day/300\$ trial period which we decided to burn on the project.}. It turned out it wasn't so easy to rig a cloud network with host based software. Apart from separating the network to hide the vulnerable machines from the internet. We wanted to monitor traffic on a subnet, to simulate the promiscuous/mirror port on a fictive switch, we had to route the traffic from the vulnerable machines to the IDS (Snort) using a load balancer and virtual tap's (VTAP) on each of the instances we wanted to monitor to a Ubuntu instance running Snort see Figure \ref{fig:AttackAndDefendLab} 
 
 \begin{figure}[!htp] % Single column figure
@@ -182,29 +190,51 @@ Just like WAF's IDS's need to analyze network packets, a key difference is that 
 There seems to be  some consensus that IDS's/IPS can be split into 2 categories:
 
 \begin{itemize}
-	\item Host-based Intrusion Detection System (HIDS)
-	\item Network Intrusion Detection System (NIDS)
+	\item \textbf{Host-based Intrusion Detection System (HIDS)}: 
+	\begin{itemize}
+		\item Installed on every host, may trace network activity to a specific application on that host.
+		\item Uses resources from the host and needs to be maintained on that host.
+	\end{itemize}
+	\item \textbf{Network Intrusion Detection System (NIDS)}: 
+	\begin{itemize}
+		\item Monitors a whole subnet using one instance (less to maintain) 
+		\item Needs to keep ups with the traffic (may be a challenge on large networks)
+	\end{itemize}
 \end{itemize}
 
-After that various sources seem to come up with a variety of definitions:
+Beyond 'H' and 'N' IDS various sources seem to come up with a variety of definitions:
 
 \begin{itemize}
-	\item Wireless Intrusion Prevention System (WIPS):  Monitors Wi-Fi networks \cite{FortinetIPSdefinitiopns}
+	\item Wireless Intrusion Prevention System (WIPS):   Monitors Wi-Fi networks \cite{FortinetIPSdefinitiopns}
 	\item Network Behavior Analysis (NBA): Detect what might be associated with distributed denial of service (DDoS) attacks \cite{FortinetIPSdefinitiopns}
-	\item Network Node Intrusion Detection System (NNIDS): A NNIDS also analyzes the packets that pass through it. However, instead of relying on a central device to monitor all network traffic, the system watches over each node connected to your network \cite{HelixstormIDSdefinitiopns}.
+	\item Network Node Intrusion Detection System (NNIDS): Watches over each node connected to your network \cite{HelixstormIDSdefinitiopns}.
 	\item Protocol-Based Intrusion Detection System (PIDS): Analyzes the HTTP or HTTPS protocol stream between your devices and the server\cite{HelixstormIDSdefinitiopns}.
 	\item Etc. Put in your own use case here..
 \end{itemize}
 
+Some examples of IDS/IPS systems are shown in Table \ref{tab:IPSProdicts}:
 
-
-\section{SOC tools and the cloud}
-
-\subsection{Who does what}
-
-\subsection{Liability}
-
-\subsection{Cost}
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{|p{2.2cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|}
+    \hline
+        \textbf{Features/IDS} & \textbf{Real-time Monitoring} & \textbf{Log Management} & \textbf{Signature-based Detection} & \textbf{Anomaly-based Detection} & \textbf{Open Source} & \textbf{Cloud Integration} & \textbf{Free Version Available} \\ \hline
+        \textbf{ManageEngine EventLog Analyzer} & Yes & Yes & Yes & Yes & No & Yes & No \\ \hline
+        \textbf{ManageEngine Log360} & Yes & Yes & Yes & Yes & No & Yes & No \\ \hline
+        \textbf{ESET Protect} & Yes & Yes & Yes & Yes & No & Yes & No \\ \hline
+        \textbf{Snort} & Yes & Yes & Yes & Yes & Yes & No & Yes \\ \hline
+        \textbf{SolarWinds Security Event Manager} & Yes & Yes & Yes & Yes & No & Yes & No \\ \hline
+        \textbf{OSSEC} & Yes & Yes & Yes & Yes & Yes & No & Yes \\ \hline
+        \textbf{Gatewatcher AIonIQ} & Yes & Yes & Yes & Yes & No & Yes & No \\ \hline
+        \textbf{CrowdSec} & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ \hline
+        \textbf{Suricata} & Yes & Yes & Yes & Yes & Yes & No & Yes \\ \hline
+        \textbf{Zeek} & Yes & Yes & Yes & Yes & Yes & No & Yes \\ \hline
+        \textbf{Security Onion} & Yes & Yes & Yes & Yes & Yes & No & Yes \\ \hline
+        \textbf{AIDE} & Yes & No & No & Yes & Yes & No & Yes \\ \hline
+    \end{tabular}
+	\caption{Comparison of different IDS/IPS products, data from \cite{ComparitechIPSComparison}} 
+	\label{tab:IPSProdicts}
+\end{table}
 
 
 \section{Conclusion}
