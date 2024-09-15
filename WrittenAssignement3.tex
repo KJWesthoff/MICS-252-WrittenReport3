@@ -107,7 +107,7 @@ With distributed applications there is a larger attack surface, there are more h
 WAF's protect web applications and covers many of the items in the OWASP top 10 list \cite{OWASPtop10}. WAF's scope is limited to the HTTP/S Protocol and WAF's are focused on analysis of http requests and responses. WAF's can be deployed in front of web applications or as part of other infrastructure e.g. reverse proxies and cloud load balancers.   
 
 \subsection{WAF vs. "Ordinary" Firewall}
-Firewalls in general works by allowing or blocking traffic on specific transport layer ports and ranges of IP addresses. Sometimes firewalls also work as 'stateful' where in and out going package ip's and ports are compared and grouped into sessions (i.e related traffic between the server and a client) and evaluated based on the relations between packets. More fancy firewalls also 'open' the packets and inspects parts of the packet payload, this requires more computing resources. 
+Firewalls in general work by allowing or blocking traffic on specific transport layer ports and ranges of IP addresses. Sometimes firewalls also work as 'stateful' where package ip's and ports are compared and grouped into sessions and evaluated based on the relations between packets. More fancy firewalls also 'open' the packets and inspects parts of the packet payload, this requires more computing resources. 
 
 I guess a WAF falls into the 'fancy firewall' category: HTTP/S traffic happens at the application layer of the OSI model and hence relates to the TCP/UDP packet payload. However, a difference to ordinary firewalls is that WAF's are specialized to work on http requests, since the traffic needs to be decrypted and parsed by the web server anyway, some the resource overhead from the WAF can be mitigated by doing some of the web servers work on the WAF while checking the traffic.    
 
@@ -126,7 +126,8 @@ As WAF's are based on analyzing the packet payloads and http query strings; 'it 
 
 For that, it needs to keep track of multiple packets to track sessions and TCP streams, many vendors advertize leveraging machine learning for this in their WAF's\cite{OpenappsecWaf}.
 
-\subsubsection{Types of WAF's:} WAF's are deployed in different settings depending on how the web applications they protect are deployed, in all cases WAF's need adequate processing power and network bandwidth.
+\subsubsection{Types of WAF's:} WAF's are deployed in different settings depending on the web applications they protect, in all cases WAF's need adequate processing power and network bandwidth. WAF's can be put in 3 categories based on how they are deployed:
+
 \begin{itemize}
 	\item{\textbf{Host Based}: On the same physical hardware and OS as the web application}
 	\item{\textbf{Network Based}: On a separate 'box' on the network, for example with a reverse proxy}
@@ -238,7 +239,7 @@ Some examples of IDS/IPS systems are shown in Table \ref{tab:IPSProdicts}:
 
 
 \section{Conclusion}
-Web Application Firewalls (WAF) and Intrusion Detection Systems (IDS) are important sources of data to the security operation. IDS's and WAF's can help mitigate some of the risk associated with moving infrastructure and company functions to cloud based web applications. With applications being deployed on 'someone else's computer' often using 'someone else's code', it is however important to monitor the traffic and protect the applications. By limiting data infrastructure to use  HTTP/S traffic, the attack surface actually gets smaller and tools can be simplified and made more efficient (WAF is an example hereof). Most services could be made web based, managers and most enterprise support functions do not need computers with advanced OS systems, but could do all work on devices with a web browser only. The security can then be shifted more towards Identity and Access Management (IAM) and a focus on social engineering attacks.
+Web Application Firewalls (WAF) and Intrusion Detection Systems (IDS) are important sources of data to the security operation. IDS's and WAF's can help mitigate some of the risk associated with moving infrastructure and company functions to cloud based web applications. With applications being deployed on 'someone else's computer' often using 'someone else's code', it is important to monitor the traffic and protect the applications (WAF and IDS are deployed for this purpose). By limiting data infrastructure to use HTTP/S traffic, the attack surface actually gets smaller and tools can be simplified and made more efficient (WAF is an example hereof). 
 
 
 %----------------------------------------------------------------------------------------
@@ -267,13 +268,13 @@ Web Application Firewalls (WAF) and Intrusion Detection Systems (IDS) are import
 	alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"OS-WINDOWS Microsoft Windows SMB remote code execution attempt"; flow:to_server,established; content:"|FF|SMB3|00 00 00 00|"; depth:9; offset:4; byte_extract:2,26,TotalDataCount,relative,little; byte_test:2,>,TotalDataCount,20,relative,little; metadata:policy balanced-ips drop, policy connectivity-ips drop, policy security-ips drop, ruleset community, service netbios-ssn; reference:cve,2017-0144; reference:cve,2017-0146; reference:url,isc.sans.edu/forums/diary/ETERNALBLUE+Possible+Window+SMB+Buffer+Overflow+0Day/22304/; reference:url,technet.microsoft.com/en-us/security/bulletin/MS17-010; classtype:attempted-admin; sid:41978; rev:3;)
 \end{lstlisting}
 
-I had ChatGPT write out following explanation to the rule, see Figure \ref{fig:SnortExaplin}
+I had ChatGPT write out an explanation to the rule, see Figure \ref{fig:SnortExplain}
 
 \begin{figure}[!htp] % Single column figure
 	\centering
 	\includegraphics[width=\linewidth]{ChatGPTExplanation.png}
 	\caption{Explanation for the  SID 41978 snort Rule, generated using ChatGPT }
-	\label{fig:SnortExaplin}
+	\label{fig:SnortExplain}
 \end{figure}
 
 %\hypertarget{webgoat-setup}{%
